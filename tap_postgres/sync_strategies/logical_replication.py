@@ -381,19 +381,19 @@ def consume_message(streams, state, msg, time_extracted, conn_info, end_lsn, mes
 def locate_replication_slot(conn_info):
     with post_db.open_connection(conn_info, False) as conn:
         with conn.cursor() as cur:
-            db_specific_slot = "stitch_{}".format(conn_info['dbname'])
+            db_specific_slot = "meltano_{}".format(conn_info['dbname'])
             cur.execute("SELECT * FROM pg_replication_slots WHERE slot_name = %s AND plugin = %s", (db_specific_slot, 'wal2json'))
             if len(cur.fetchall()) == 1:
                 LOGGER.info("using pg_replication_slot %s", db_specific_slot)
                 return db_specific_slot
 
 
-            cur.execute("SELECT * FROM pg_replication_slots WHERE slot_name = 'stitch' AND plugin = 'wal2json'")
+            cur.execute("SELECT * FROM pg_replication_slots WHERE slot_name = 'meltano' AND plugin = 'wal2json'")
             if len(cur.fetchall()) == 1:
-                LOGGER.info("using pg_replication_slot 'stitch'")
-                return 'stitch'
+                LOGGER.info("using pg_replication_slot 'meltano'")
+                return 'meltano'
 
-            raise Exception("Unable to find replication slot (stitch || {} with wal2json".format(db_specific_slot))
+            raise Exception("Unable to find replication slot (meltano || {} with wal2json".format(db_specific_slot))
 
 
 def sync_tables(conn_info, logical_streams, state, end_lsn):
